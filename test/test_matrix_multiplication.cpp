@@ -29,7 +29,7 @@ TEST(MatrixMultiplicationTest, TestMultiplyMatrices1) {
     };
 
     EXPECT_EQ(C, expected) << "Matrix multiplication test failed! :(((((";
-}
+} 
 
 
 // ######################### Our tests
