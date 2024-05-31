@@ -15,11 +15,18 @@ jobs:
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v2
+      with:
+        submodules: true  # Clona anche i submoduli
 
     - name: Install Dependencies
       run: |
         sudo apt-get update
         sudo apt-get install -y mpi-default-bin mpi-default-dev
+      shell: bash
+
+    - name: Update Submodules
+      run: |
+        git submodule update --init --recursive
       shell: bash
 
     - name: Configure CMake
