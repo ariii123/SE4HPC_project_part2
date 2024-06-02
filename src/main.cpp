@@ -22,6 +22,7 @@ void readMatrixFromFile(const std::string& filename, std::vector<std::vector<int
 }
 
 int main(int argc, char** argv) {
+
     MPI_Init(&argc, &argv);
 
     int rank, size;
@@ -40,8 +41,36 @@ int main(int argc, char** argv) {
     std::vector<std::vector<int>> A, B;
 
     if (rank == 0) {
-        readMatrixFromFile("../matrixA.txt", A, rowsA, colsA);
-        readMatrixFromFile("../matrixB.txt", B, rowsB, colsB);
+        std::string matrixA_path;
+        std::string matrixB_path;
+        
+        switch (argc)
+        {
+            case 1:
+                matrixA_path = "../matrixA.txt";
+                matrixB_path = "../matrixB.txt";
+                break;
+
+            case 2:
+                std::cerr<<"Not enough arguments: setting default matrices!"<<std::endl;
+                matrixA_path = "../matrixA.txt";
+                matrixB_path = "../matrixB.txt";
+                break;
+
+            case 3:
+                matrixA_path = argv[1];
+                matrixB_path = argv[2];
+                break;
+
+            default:
+                std::cerr<<"Too many arguments: setting default matrices!"<<std::endl;
+                matrixA_path = "../matrixA.txt";
+                matrixB_path = "../matrixB.txt";
+                break;
+        }
+
+        readMatrixFromFile(matrixA_path, A, rowsA, colsA);
+        readMatrixFromFile(matrixB_path, B, rowsB, colsB);
     }
 
     

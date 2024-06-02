@@ -1,8 +1,8 @@
-#Bootstrap: library
-Bootstrap: localimage
+Bootstrap: library
+#Bootstrap: localimage
 
-#From: ubuntu:20.04
-From: ./prova.sif
+From: ubuntu:latest
+#From: ./prova.sif
 
 %files
 	../CMake* /home/repo/
@@ -15,9 +15,9 @@ From: ./prova.sif
 
 %post
 	export DEBIAN_FRONTEND=noninteractive
-	#apt-get update
-	#apt-get install -y g++ mpi-default-bin mpi-default-dev
-	#apt-get clean
+	apt-get update
+	apt-get install -y g++ mpi-default-bin mpi-default-dev build-essential cmake
+	apt-get clean
 	cd /home/repo
 	mkdir build
 	cd build
