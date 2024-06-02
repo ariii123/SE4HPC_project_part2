@@ -1,0 +1,31 @@
+#Bootstrap: library
+Bootstrap: localimage
+
+#From: ubuntu:20.04
+From: ./prova.sif
+
+%files
+	../CMake* /home/repo/
+	../googletest /home/repo/
+	../build.sh /home/repo/
+	../include /home/repo/
+	../lib /home/repo/
+	../test /home/repo/
+	../src /home/repo/
+
+%post
+	export DEBIAN_FRONTEND=noninteractive
+	#apt-get update
+	#apt-get install -y g++ mpi-default-bin mpi-default-dev
+	#apt-get clean
+	cd /home/repo
+	mkdir build
+	cd build
+	cmake ..
+	make
+	chmod 755 main
+	chmod 755 test_multiplication
+
+
+%runscript
+	exec mpirun -n 2 /home/repo/build/main "$@"

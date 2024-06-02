@@ -1,0 +1,9 @@
+Bootstrap: library
+
+From: ubuntu:latest
+
+%post
+	export DEBIAN_FRONTEND=noninteractive
+	apt-get update
+	apt-get install -y g++ mpi-default-bin mpi-default-dev build-essential cmake
+	apt-get clean
