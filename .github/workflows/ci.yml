@@ -34,7 +34,7 @@ jobs:
       with:
         path: singularity/cont.sif
         key: ${{ runner.os }}-singularity-image-
-        restore_keys: ${{ runner.os }}-singularity-image-
+        restore_keys: ${{ runner.os }}-singularity-image- #${{ hashFiles('singularity/container.def') }}
 
     - name: Install Dependencies
       run: |
@@ -72,5 +72,7 @@ jobs:
 
     - name: Send image to the cluster
       run: sshpass -p '${{ secrets.CINECA_PASSWORD }}' scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null singularity/cont.sif ${{ secrets.CINECA_USER_NAME}}@login.g100.cineca.it:/g100/home/usertrain/${{ secrets.CINECA_USER_NAME }}/cont.sif
+      run: sshpass -p '${{ secrets.CINECA_PASSWORD }}' scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null job.sh ${{ secrets.CINECA_USER_NAME}}@login.g100.cineca.it:/g100/home/usertrain/${{ secrets.CINECA_USER_NAME }}/job.sh
+      
     
 
