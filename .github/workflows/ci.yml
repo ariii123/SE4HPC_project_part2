@@ -33,7 +33,7 @@ jobs:
       uses: actions/cache@v2
       with:
         path: singularity/cont.sif
-        key: ${{ runner.os }}-singularity-image-
+        key: ${{ runner.os }}-singularity-image-${{ hashFiles('singularity/container.def') }}
         restore_keys: ${{ runner.os }}-singularity-image-${{ hashFiles('singularity/container.def') }}
 
     - name: Install Dependencies
