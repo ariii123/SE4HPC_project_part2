@@ -18,20 +18,14 @@ jobs:
       with:
         submodules: true  # Clona anche i submoduli
 
-    - name: Cache apt packages
+    - name: Cache APT packages and lists
+      id: cache-apt
       uses: actions/cache@v2
-      id: cache-apt-packages
       with:
-        path: "/var/cache/apt"
+        path: |
+          /var/cache/apt
+          /var/lib/apt/lists
         key: ${{ runner.os }}-apt-cache
-        restore-keys: ${{ runner.os }}-apt-cache
-
-    - name: Cache apt lists
-      uses: actions/cache@v2
-      with:
-        path: /var/lib/apt/lists
-        key: ${{ runner.os }}-apt-lists
-        restore-keys: ${{ runner.os }}-apt-lists
 
 
 #    - name: Cache singularity binaries
