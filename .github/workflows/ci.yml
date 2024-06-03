@@ -58,7 +58,7 @@ jobs:
       
 
     - name: Setup Singularity
-      if: steps.cache-singularity.outputs.cache-hit != 'true'
+      #if: steps.cache-singularity.outputs.cache-hit != 'true'
       uses: eWaterCycle/setup-singularity@v7
       with:
         singularity-version: 3.8.3
