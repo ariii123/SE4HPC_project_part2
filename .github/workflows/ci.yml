@@ -59,15 +59,15 @@ jobs:
 
     - name: Setup Singularity
       if: steps.cache-singularity.outputs.cache-hit != 'true'
-        uses: eWaterCycle/setup-singularity@v7
-        with:
-          singularity-version: 3.8.3
+      uses: eWaterCycle/setup-singularity@v7
+      with:
+        singularity-version: 3.8.3
       
     - name: Verify singularity version
       run: singularity --version
 
     - name: Build Singularity Container
       if: steps.cache-image.outputs.cache-hit != 'true'
-        run: singularity build --fakeroot singularity/cont.sif singularity/container.def
+      run: singularity build --fakeroot singularity/cont.sif singularity/container.def
     
 
