@@ -5,13 +5,13 @@ From: ubuntu:latest
 #From: ./prova.sif
 
 %files
-	../CMake* /home/repo/
-	../googletest /home/repo/
-	../build.sh /home/repo/
-	../include /home/repo/
-	../lib /home/repo/
-	../test /home/repo/
-	../src /home/repo/
+	CMake* /home/repo/
+	googletest /home/repo/
+	build.sh /home/repo/
+	include /home/repo/
+	lib /home/repo/
+	test /home/repo/
+	src /home/repo/
 
 %post
 	export DEBIAN_FRONTEND=noninteractive

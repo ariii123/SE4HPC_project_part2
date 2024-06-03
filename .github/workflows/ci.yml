@@ -43,8 +43,8 @@ jobs:
         singularity-version: 3.8.3
 
     - name: Build Singularity Container
-      run: singularity build --fakeroot cont.sif singularity/container.def
+      run: ./build_container.sh
     
     - name: execute 
-      run: singularity exec cont.sif /home/repo/build/main
+      run: singularity exec singularity/cont.sif /home/repo/build/main
 
