@@ -18,15 +18,15 @@ jobs:
       with:
         submodules: true  # Clona anche i submoduli
 
+    - name: Read singularity version
+      run: echo "SINGULARITY_VERSION=$(cat singularity-version.txt)" >> $GITHUB_ENV
 
     - name: Cache singularity binaries
       id: cache-singularity
       uses: actions/cache@v2
       with:
-        path: /opt/hostedtoolcache/singularity/3.8.3
-        key: ${{ runner.os }}-singularity-${{ hashFiles('./singularity-version.txt') }}
-        restore_keys: |
-          ${{ runner.os }}-singularity-${{ hashFiles('./singularity-version.txt') }}
+        path: /opt/hostedtoolcache/singularity/${{ env.SINGULARITY_VERSION }}
+        key: ${{ runner.os }}-singularity-${{ env.SINGULARITY_VERSION }}
 
     - name: Cache singularity container image
       id: cache-image
@@ -34,7 +34,6 @@ jobs:
       with:
         path: singularity/cont.sif
         key: ${{ runner.os }}-singularity-image-${{ hashFiles('singularity/container.def') }}
-        restore_keys: ${{ runner.os }}-singularity-image-${{ hashFiles('singularity/container.def') }}
 
     - name: Install Dependencies
       run: |
@@ -58,10 +57,9 @@ jobs:
       
 
     - name: Setup Singularity
-      #if: steps.cache-singularity.outputs.cache-hit != 'true'
       uses: eWaterCycle/setup-singularity@v7
       with:
-        singularity-version: 3.8.3
+        singularity-version: ${{ env.SINGULARITY_VERSION }}
       
     - name: Verify singularity version
       run: singularity --version
@@ -82,6 +80,7 @@ jobs:
 
 
     - name: Cleaning the used directory on the cluster
+      #if: always()
       run: sshpass -p '${{ secrets.CINECA_PASSWORD }}' ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${{ secrets.CINECA_USER_NAME}}@login.g100.cineca.it "rm job.sh cont.sif *.txt"
 
   
