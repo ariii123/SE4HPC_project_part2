@@ -30,19 +30,10 @@ jobs:
       shell: bash
 
     - name: Configure CMake
-      run: |
-        mkdir -p build
-        cd build
-        cmake -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} ..
-      shell: bash
+      run: cmake -S . -B build
 
     - name: Build
-      run: |
-        cmake --build build --config ${{ env.BUILD_TYPE }}
-      shell: bash
+      run: cmake --build build
 
-    - name: Test
-      run: |
-        cd build
-        ctest -C ${{ env.BUILD_TYPE }}
-      shell: bash
+    - name: Run Tests
+      run: ctest --test-dir build
