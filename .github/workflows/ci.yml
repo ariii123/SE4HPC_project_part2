@@ -18,10 +18,26 @@ jobs:
       with:
         submodules: true  # Clona anche i submoduli
 
+    - name: Cache apt packages
+      uses: actions/cacheout@v2
+      with:
+        path: /var/cache/apt
+        key: ${{ runner.os}}--apt-${{ hashFiles('apt-packages.txt') }}
+        restore-keys: |
+          ${{ runner os }}-apt-
+
+    - name: Cache apt lists
+      uses: actions/cache@v2
+      with:
+        path: /var/lib/apt
+        key: ${{ runner.os }}--apt--lists-${{ hashFiles('apt-packages.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-apt-lists-
+
     - name: Install Dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y mpi-default-bin mpi-default-dev
+        sudo apt-get install -y $(cat apt-packages.txt)
       shell: bash
 
     - name: Update Submodules
