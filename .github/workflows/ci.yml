@@ -23,10 +23,10 @@ jobs:
       id: cache-singularity
       uses: actions/cache@v2
       with:
-        path: /usr/local/bin/singularity
-        key: ${{ runner.os }}-singularity-${{ hashFiles('**/singularity-version.txt') }}
+        path: /opt/hostedtoolcache/singularity/$(cat ./singularity-version.txt)
+        key: ${{ runner.os }}-singularity-${{ hashFiles('./singularity-version.txt') }}
         restore_keys: |
-          ${{ runner.os }}-singularity-
+          ${{ runner.os }}-singularity-${{ hashFiles('./singularity-version.txt') }}
 
     - name: Cache singularity container image
       id: cache-image
@@ -61,7 +61,7 @@ jobs:
       #if: steps.cache-singularity.outputs.cache-hit != 'true'
       uses: eWaterCycle/setup-singularity@v7
       with:
-        singularity-version: 3.8.3
+        singularity-version: $(cat singularity-version.txt)
       
     - name: Verify singularity version
       run: singularity --version
