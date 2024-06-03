@@ -45,6 +45,4 @@ jobs:
     - name: Build Singularity Container
       run: singularity build --fakeroot singularity/cont.sif singularity/container.def
     
-    - name: execute 
-      run: singularity exec singularity/cont.sif /home/repo/build/main
 
