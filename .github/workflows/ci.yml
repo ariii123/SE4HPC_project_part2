@@ -31,7 +31,7 @@ jobs:
       shell: bash
 
     - name: Build Singularity Container
-      run: singularity build--fakeroot my_container.sif Singularity.def
+      run: singularity build--fakeroot cont.sif singularity/container.def
 
     - name: Update Submodules
       run: |
