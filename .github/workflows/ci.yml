@@ -70,12 +70,15 @@ jobs:
       if: steps.cache-image.outputs.cache-hit != 'true'
       run: singularity build --fakeroot singularity/cont.sif singularity/container.def
 
-    - name: Send image to the cluster
+    - name: Send image, job and data to the cluster
       run: sshpass -p '${{ secrets.CINECA_PASSWORD }}' scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null singularity/cont.sif job.sh matrix* ${{ secrets.CINECA_USER_NAME}}@login.g100.cineca.it:/g100/home/usertrain/${{ secrets.CINECA_USER_NAME }}/
 
 
     - name: Execute job on the cluster
       run: sshpass -p '${{ secrets.CINECA_PASSWORD }}' ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${{ secrets.CINECA_USER_NAME}}@login.g100.cineca.it "sh ./job.sh"
+
+    - name: Copying the data back
+      run: sshpass -p '${{ secrets.CINECA_PASSWORD }}' scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${{ secrets.CINECA_USER_NAME}}@login.g100.cineca.it:/g100/home/usertrain/${{ secrets.CINECA_USER_NAME }}/std* ./ && cat std*
 
     
 
