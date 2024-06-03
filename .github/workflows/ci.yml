@@ -24,6 +24,15 @@ jobs:
         sudo apt-get install -y mpi-default-bin mpi-default-dev
       shell: bash
 
+    - name: Install Singularity
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y singularity-container
+      shell: bash
+
+    - name: Build Singularity Container
+      run: singularity build--fakeroot my_container.sif Singularity.def
+
     - name: Update Submodules
       run: |
         git submodule update --init --recursive
