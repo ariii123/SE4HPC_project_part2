@@ -34,6 +34,15 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-apt-lists-
 
+    - name: Cache singularity binaries
+      id: cache-singularity
+      uses: actions/cache@v2
+      with:
+        path: /usr/local/bin/singularity
+        key: ${{ runner.os }}-singularity-${{ hashFiles('**/singularity-version.txt') }}
+        restore_keys: |
+          ${{ runner.os }}-singularity-
+
     - name: Install Dependencies
       run: |
         sudo apt-get update
@@ -54,9 +63,14 @@ jobs:
     - name: Run Tests
       run: ctest --test-dir build
       
-    - uses: eWaterCycle/setup-singularity@v7
+    - name: Setup Singularity
+      if: steps.cache-singularity.outputs.cache-hit != 'true'
+      uses: eWaterCycle/setup-singularity@v7
       with:
         singularity-version: 3.8.3
+      
+    - name: Verify singularity version
+      run: singularity --version
 
     - name: Build Singularity Container
       run: singularity build --fakeroot singularity/cont.sif singularity/container.def
