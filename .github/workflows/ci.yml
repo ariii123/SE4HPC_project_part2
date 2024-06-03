@@ -19,7 +19,7 @@ jobs:
         submodules: true  # Clona anche i submoduli
 
     - name: Cache apt packages
-      uses: actions/cacheout@v2
+      uses: actions/cache@v2
       with:
         path: /var/cache/apt
         key: ${{ runner.os}}--apt-${{ hashFiles('apt-packages.txt') }}
