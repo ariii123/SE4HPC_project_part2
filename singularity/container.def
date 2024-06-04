@@ -9,7 +9,7 @@ From: ubuntu:latest
 # Then we have to copy the files needed to compile our project
 %files
 	CMake* /home/repo/
-	#googletest /home/repo/
+	googletest /home/repo/
 	build.sh /home/repo/
 	include /home/repo/
 	lib /home/repo/
