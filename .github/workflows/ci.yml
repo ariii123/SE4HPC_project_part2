@@ -53,7 +53,9 @@ jobs:
     # We set the version of singularity found in the .singularity-version.txt file
     # as an environmental variable
     - name: Read singularity version
-      run: echo "SINGULARITY_VERSION=$(cat .singularity-version.txt)" >> $GITHUB_ENV
+      run: |
+        echo "SINGULARITY_VERSION=$(cat .singularity-version.txt)" >> $GITHUB_ENV
+
 
     # Since the build process of singularity is the most time expensive part of
     # the job we decided to cache it: we found out that eWaterCycle/setup-singularity
@@ -77,7 +79,7 @@ jobs:
       with:
         path: singularity/cont.sif
         key: |
-          ${{ runner.os }}-singularity-image-${{ hashFiles('singularity/container.def') }}
+          ${{runner.os}}-singularity-image-${{hashFiles('singularity/container.def')}}
 
 
     # Here we have to setup singularity: it automatically checks for cache files
@@ -102,17 +104,21 @@ jobs:
     # matrices on the cluster, execute the job and copy back the data.
     - name: Send image, job and data to the cluster
       run: |
+        echo "SSH_ADDRESS=${{ secrets.CINECA_USER_NAME }}@login.g100.cineca.it">> \
+        $GITHUB_ENV
+        echo "REMOTE_PATH=/g100/home/usertrain/${{ secrets.CINECA_USER_NAME }}">> \
+        $GITHUB_ENV
         sshpass -p '${{ secrets.CINECA_PASSWORD }}'                               \
         scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null           \
         singularity/cont.sif job.sh matrix*                                       \
-        ${{ secrets.CINECA_USER_NAME}}@login.g100.cineca.it:/g100/home/usertrain/${{ secrets.CINECA_USER_NAME }}/
+        ${{ env.SSH_ADDRESS}}:${{env.REMOTE_PATH}}/
 
 
     - name: Execute job on the cluster
       run: |
         sshpass -p '${{ secrets.CINECA_PASSWORD }}'                               \
         ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null           \
-        ${{ secrets.CINECA_USER_NAME}}@login.g100.cineca.it "sbatch ./job.sh"
+        ${{ env.SSH_ADDRESS }} "sbatch ./job.sh"
     
     # Before copying the data back, we wait for 10 seconds just in case
     - name: Copying the data back
@@ -120,13 +126,15 @@ jobs:
         sleep 10
         sshpass -p '${{ secrets.CINECA_PASSWORD }}'                               \
         scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null           \
-        ${{ secrets.CINECA_USER_NAME}}@login.g100.cineca.it:/g100/home/usertrain/${{ secrets.CINECA_USER_NAME }}/std* ./ && cat std*
+        ${{ env.SSH_ADDRESS }}:${{ env.REMOTE_PATH }}/std* ./ && cat std*
 
 
     - name: Cleaning the used directory on the cluster
       if: always()
-      run: 
-        sshpass -p '${{ secrets.CINECA_PASSWORD }}' ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${{ secrets.CINECA_USER_NAME}}@login.g100.cineca.it "rm job.sh cont.sif *.txt"
+      run: |
+        sshpass -p '${{ secrets.CINECA_PASSWORD }}'                               \
+        ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null           \
+        ${{ env.SSH_ADDRESS }} "rm job.sh cont.sif *.txt"
 
   
 

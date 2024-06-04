@@ -1,18 +1,23 @@
+# At first we have to specify the default image of our container
+
 Bootstrap: library
 #Bootstrap: localimage
 
 From: ubuntu:latest
 #From: ./prova.sif
 
+# Then we have to copy the files needed to compile our project
 %files
 	CMake* /home/repo/
-	googletest /home/repo/
+	#googletest /home/repo/
 	build.sh /home/repo/
 	include /home/repo/
 	lib /home/repo/
 	test /home/repo/
 	src /home/repo/
 
+
+# Then we install the dependencies and build the code
 %post
 	export DEBIAN_FRONTEND=noninteractive
 	apt-get update
@@ -22,9 +27,9 @@ From: ubuntu:latest
 	mkdir build
 	cd build
 	cmake ..
-	make
+	make main
 	chmod 755 main
-	chmod 755 test_multiplication
+	#chmod 755 test_multiplication
 
 
 %runscript
