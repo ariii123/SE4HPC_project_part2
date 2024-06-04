@@ -112,7 +112,7 @@ jobs:
       run: |
         sshpass -p '${{ secrets.CINECA_PASSWORD }}'                               \
         ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null           \
-        ${{ secrets.CINECA_USER_NAME}}@login.g100.cineca.it "sbathc ./job.sh"
+        ${{ secrets.CINECA_USER_NAME}}@login.g100.cineca.it "sbatch ./job.sh"
     
     # Before copying the data back, we wait for 10 seconds just in case
     - name: Copying the data back
