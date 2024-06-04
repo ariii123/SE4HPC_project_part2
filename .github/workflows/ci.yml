@@ -64,8 +64,8 @@ jobs:
       id: cache-singularity
       uses: actions/cache@v2
       with:
-        path: /opt/hostedtoolcache/singularity/${{ env.SINGULARITY_VERSION }}
-        key: ${{ runner.os }}-singularity-${{ env.SINGULARITY_VERSION }}
+        path: /opt/hostedtoolcache/singularity/${{env.SINGULARITY_VERSION}}
+        key: ${{runner.os}}-singularity-${{ env.SINGULARITY_VERSION }}
 
     # The building process of the sif file is also time (and resource) expensive
     # so we decided to cache it. The key in this case is the sha-256 checksum of
@@ -77,7 +77,7 @@ jobs:
       with:
         path: singularity/cont.sif
         key: |
-          ${{ runner.os }}-singularity-image-${{ hashFiles('singularity/container.def') }}
+          ${{runner.os}}-singularity-image-${{hashFiles('singularity/container.def')}}
 
 
     # Here we have to setup singularity: it automatically checks for cache files
@@ -113,7 +113,7 @@ jobs:
       run: |
         sshpass -p '${{ secrets.CINECA_PASSWORD }}'                               \
         ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null           \
-        ${{ secrets.CINECA_USER_NAME}}@login.g100.cineca.it "sbatch ./job.sh"
+        ${{secrets.CINECA_USER_NAME}}@login.g100.cineca.it "sbatch ./job.sh"
     
     # Before copying the data back, we wait for 10 seconds just in case
     - name: Copying the data back
@@ -127,10 +127,10 @@ jobs:
 
     - name: Cleaning the used directory on the cluster
       if: always()
-      run: 
+      run: |
         sshpass -p '${{ secrets.CINECA_PASSWORD }}'                               \
         ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null           \
-        ${{ secrets.CINECA_USER_NAME}}@login.g100.cineca.it "rm job.sh cont.sif *.txt"
+        ${{secrets.CINECA_USER_NAME}}@login.g100.cineca.it "rm job.sh cont.sif *.txt"
 
   
 
