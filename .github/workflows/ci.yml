@@ -18,9 +18,16 @@ jobs:
       with:
         submodules: true  # Clona anche i submoduli
 
+    # We set the version of singularity found in the .singularity-version.txt file
+    # as an environmental variable
     - name: Read singularity version
-      run: echo "SINGULARITY_VERSION=$(cat singularity-version.txt)" >> $GITHUB_ENV
+      run: echo "SINGULARITY_VERSION=$(cat .singularity-version.txt)" >> $GITHUB_ENV
 
+    # Since the build process of singularity is the most time expensive part of
+    # the job we decided to cache it: we found out that eWaterCycle/setup-singularity
+    # checks for cache files in '/opt/hostedtoolcache/singularity'.
+    # We save the cache file including the specified version, and in case someone
+    # modifies the version singularity will be recompiled.
     - name: Cache singularity binaries
       id: cache-singularity
       uses: actions/cache@v2
@@ -28,17 +35,25 @@ jobs:
         path: /opt/hostedtoolcache/singularity/${{ env.SINGULARITY_VERSION }}
         key: ${{ runner.os }}-singularity-${{ env.SINGULARITY_VERSION }}
 
+    # The building process of the sif file is also time (and resource) expensive
+    # so we decided to cache it. The key in this case is the sha-256 checksum of
+    # the container definition file, so when there are changes in that file, the
+    # file will be re-built.
     - name: Cache singularity container image
       id: cache-image
       uses: actions/cache@v2
       with:
         path: singularity/cont.sif
-        key: ${{ runner.os }}-singularity-image-${{ hashFiles('singularity/container.def') }}
+        key: |
+          ${{ runner.os }}-singularity-image-${{ hashFiles('singularity/container.def') }}
 
+
+    # All the dependencies to be installed with apt are written in 
+    # .apt-packages.txt file
     - name: Install Dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y $(cat apt-packages.txt)
+        sudo apt-get install -y $(cat .apt-packages.txt)
       shell: bash
 
     - name: Update Submodules
@@ -56,6 +71,12 @@ jobs:
       run: ctest --test-dir build
       
 
+  containerization:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Here we have to setup singularity: it automatically checks for cache files
+    # int '/opt/hostedtoolcache/singularity' so we don't have to worry about
     - name: Setup Singularity
       uses: eWaterCycle/setup-singularity@v7
       with:
@@ -64,24 +85,48 @@ jobs:
     - name: Verify singularity version
       run: singularity --version
 
+    # In this case, singularity doesn't automatically check for cached files
+    # so we only have to run the following step in case of a cache hit
     - name: Build Singularity Container
       if: steps.cache-image.outputs.cache-hit != 'true'
-      run: singularity build --fakeroot singularity/cont.sif singularity/container.def
+      run: |
+        singularity build --fakeroot singularity/cont.sif                         \
+        singularity/container.def
 
+    # Now we can copy the built container, the job shell script and the input 
+    # matrices on the cluster, execute the job and copy back the data.
     - name: Send image, job and data to the cluster
-      run: sshpass -p '${{ secrets.CINECA_PASSWORD }}' scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null singularity/cont.sif job.sh matrix* ${{ secrets.CINECA_USER_NAME}}@login.g100.cineca.it:/g100/home/usertrain/${{ secrets.CINECA_USER_NAME }}/
+      run: |
+        sshpass -p '${{ secrets.CINECA_PASSWORD }}'                               \
+        scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null           \
+        singularity/cont.sif job.sh matrix*                                       \
+        ${{ secrets.CINECA_USER_NAME}}@login.g100.cineca.it:                      \
+        /g100/home/usertrain/${{ secrets.CINECA_USER_NAME }}/
 
 
     - name: Execute job on the cluster
-      run: sshpass -p '${{ secrets.CINECA_PASSWORD }}' ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${{ secrets.CINECA_USER_NAME}}@login.g100.cineca.it "sh ./job.sh"
-
+      run: |
+        sshpass -p '${{ secrets.CINECA_PASSWORD }}'                               \
+        ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null           \
+        ${{ secrets.CINECA_USER_NAME}}@login.g100.cineca.it "sbathc ./job.sh"
+    
+    # Before copying the data back, we wait for 10 seconds just in case
     - name: Copying the data back
-      run: sshpass -p '${{ secrets.CINECA_PASSWORD }}' scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${{ secrets.CINECA_USER_NAME}}@login.g100.cineca.it:/g100/home/usertrain/${{ secrets.CINECA_USER_NAME }}/std* ./ && cat std*
+      run: |
+        sleep 10
+        sshpass -p '${{ secrets.CINECA_PASSWORD }}'                               \
+        scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null           \
+        ${{ secrets.CINECA_USER_NAME}}@login.g100.cineca.it:                      \
+        /g100/home/usertrain/${{ secrets.CINECA_USER_NAME }}/std* ./ && cat std*
 
 
     - name: Cleaning the used directory on the cluster
-      #if: always()
-      run: sshpass -p '${{ secrets.CINECA_PASSWORD }}' ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${{ secrets.CINECA_USER_NAME}}@login.g100.cineca.it "rm job.sh cont.sif *.txt"
+      if: always()
+      run: 
+        sshpass -p '${{ secrets.CINECA_PASSWORD }}'                               \
+        ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null           \
+        ${{ secrets.CINECA_USER_NAME}}@login.g100.cineca.it                       \
+        "rm job.sh cont.sif *.txt"
 
   
 
