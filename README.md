@@ -11,6 +11,23 @@ Instead, to only see the errors in output run the code in this way:
 ./test_multiplication 2>&1>/dev/null | grep -e 'Error' | sort -u --version-sort 
 ```
 
+To run the code on the cluster:
+
+1. You need to install singularity
+2. You have to build the container
+```
+sudo singularity build singularity/cont.sif singularity/conteiner.def
+```
+Or if you don't have root privileges:
+```
+singularity build --fakeroot singularity/cont.sif singularity/conteiner.def
+```
+
+3. You have to move the image in the cluster
+```
+scp singularity/cont.sif [username]@login.g100.cineca.it:/g100/home/usertrain/[username]
+```
+
 ## CI pipeline
 
 
