@@ -41,20 +41,21 @@ int main(int argc, char** argv) {
     std::vector<std::vector<int>> A, B;
 
     if (rank == 0) {
+        // For a more flexible usage of the program, we decided to make it
+        // possible to take the path to the matrices as arguments in argv
         std::string matrixA_path;
         std::string matrixB_path;
-        
         switch (argc)
         {
             case 1:
-                matrixA_path = "../matrixA.txt";
-                matrixB_path = "../matrixB.txt";
+                matrixA_path = "./matrixA.txt";
+                matrixB_path = "./matrixB.txt";
                 break;
 
             case 2:
                 std::cerr<<"Not enough arguments: setting default matrices!"<<std::endl;
-                matrixA_path = "../matrixA.txt";
-                matrixB_path = "../matrixB.txt";
+                matrixA_path = "./matrixA.txt";
+                matrixB_path = "./matrixB.txt";
                 break;
 
             case 3:
@@ -64,8 +65,8 @@ int main(int argc, char** argv) {
 
             default:
                 std::cerr<<"Too many arguments: setting default matrices!"<<std::endl;
-                matrixA_path = "../matrixA.txt";
-                matrixB_path = "../matrixB.txt";
+                matrixA_path = "./matrixA.txt";
+                matrixB_path = "./matrixB.txt";
                 break;
         }
 
