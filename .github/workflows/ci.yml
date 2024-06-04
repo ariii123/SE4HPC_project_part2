@@ -105,7 +105,8 @@ jobs:
         sshpass -p '${{ secrets.CINECA_PASSWORD }}'                               \
         scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null           \
         singularity/cont.sif job.sh matrix*                                       \
-        ${{ secrets.CINECA_USER_NAME}}@login.g100.cineca.it:/g100/home/usertrain/${{ secrets.CINECA_USER_NAME }}/
+        ${{ secrets.CINECA_USER_NAME }}@login.g100.cineca.it:/g100/home/usertrain/\
+        ${{ secrets.CINECA_USER_NAME }}/
 
 
     - name: Execute job on the cluster
@@ -120,13 +121,16 @@ jobs:
         sleep 10
         sshpass -p '${{ secrets.CINECA_PASSWORD }}'                               \
         scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null           \
-        ${{ secrets.CINECA_USER_NAME}}@login.g100.cineca.it:/g100/home/usertrain/${{ secrets.CINECA_USER_NAME }}/std* ./ && cat std*
+        ${{ secrets.CINECA_USER_NAME }}@login.g100.cineca.it:/g100/home/usertrain/\
+        ${{ secrets.CINECA_USER_NAME }}/std* ./ && cat std*
 
 
     - name: Cleaning the used directory on the cluster
       if: always()
       run: 
-        sshpass -p '${{ secrets.CINECA_PASSWORD }}' ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${{ secrets.CINECA_USER_NAME}}@login.g100.cineca.it "rm job.sh cont.sif *.txt"
+        sshpass -p '${{ secrets.CINECA_PASSWORD }}'                               \
+        ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null           \
+        ${{ secrets.CINECA_USER_NAME}}@login.g100.cineca.it "rm job.sh cont.sif *.txt"
 
   
 
