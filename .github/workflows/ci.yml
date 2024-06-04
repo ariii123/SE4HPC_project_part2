@@ -104,10 +104,8 @@ jobs:
     # matrices on the cluster, execute the job and copy back the data.
     - name: Send image, job and data to the cluster
       run: |
-        echo                                                                      \
-        "SSH_ADDRESS=${{ secrets.CINECA_USER_NAME }}@login.g100.cineca.it">>$GITHUB_ENV
-        echo                                                                      \
-        "REMOTE_PATH=/g100/home/usertrain/${{ secrets.CINECA_USER_NAME }}">>$GITHUB_ENV
+        echo "SSH_ADDRESS=${{ secrets.CINECA_USER_NAME }}@login.g100.cineca.it">>$GITHUB_ENV
+        echo "REMOTE_PATH=/g100/home/usertrain/${{ secrets.CINECA_USER_NAME }}">>$GITHUB_ENV
         sshpass -p '${{ secrets.CINECA_PASSWORD }}'                               \
         scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null           \
         singularity/cont.sif job.sh matrix*                                       \
