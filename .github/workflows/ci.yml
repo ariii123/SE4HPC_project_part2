@@ -18,6 +18,38 @@ jobs:
       with:
         submodules: true  # Clona anche i submoduli
 
+    # All the dependencies to be installed with apt are written in 
+    # .apt-packages.txt file
+    - name: Install Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y $(cat .apt-packages.txt)
+      shell: bash
+
+    - name: Update Submodules
+      run: |
+        git submodule update --init --recursive
+      shell: bash
+
+    - name: Configure CMake
+      run: cmake -S . -B build
+
+    - name: Build
+      run: cmake --build build
+
+    - name: Run Tests
+      run: ctest --test-dir build
+      
+
+  containerization:
+    runs-on: ubuntu-latest
+
+    steps:  
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+      with:
+        submodules: true  # Clona anche i submoduli
+
     # We set the version of singularity found in the .singularity-version.txt file
     # as an environmental variable
     - name: Read singularity version
@@ -48,33 +80,6 @@ jobs:
           ${{ runner.os }}-singularity-image-${{ hashFiles('singularity/container.def') }}
 
 
-    # All the dependencies to be installed with apt are written in 
-    # .apt-packages.txt file
-    - name: Install Dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y $(cat .apt-packages.txt)
-      shell: bash
-
-    - name: Update Submodules
-      run: |
-        git submodule update --init --recursive
-      shell: bash
-
-    - name: Configure CMake
-      run: cmake -S . -B build
-
-    - name: Build
-      run: cmake --build build
-
-    - name: Run Tests
-      run: ctest --test-dir build
-      
-
-  containerization:
-    runs-on: ubuntu-latest
-
-    steps:
     # Here we have to setup singularity: it automatically checks for cache files
     # int '/opt/hostedtoolcache/singularity' so we don't have to worry about
     - name: Setup Singularity
